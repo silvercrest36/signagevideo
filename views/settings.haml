@@ -1,0 +1,131 @@
+!!! 5
+%html
+
+  %head
+    %meta(charset="utf-8")
+    %title Screenly OSE
+
+    %link(href="/static/css/bootstrap.css", rel="stylesheet")
+    %link(href="/static/css/screenly.css", rel="stylesheet")
+    %link(href="/static/css/toggle-switch.css", rel="stylesheet")
+    %script(src="/static/js/jquery-1.9.1.min.js")
+
+  %body
+
+    .navbar.navbar-fixed-top
+      .navbar-inner
+        .container
+          %a.brand(href="#")
+            %strong Systeme
+            %span Signage
+
+          %ul.nav.pull-right
+            / - if not up_to_date:
+            /   %li.update-available
+            /     %a(href="http://www.screenlyapp.com/ose.html#upgrade")
+            /       %i.icon-circle-arrow-down.icon-white
+            /       Update Available
+            %li
+              %a(href="/settings")
+                %i.icon-cog.icon-white
+                Parametres
+            %li.divider-vertical
+            %li
+              %a(href="/system_info")
+                %i.icon-tasks.icon-white
+                Information Systeme
+
+    .container
+      .row
+        .span12
+          %h1.page-header
+           Parametres
+
+
+          - if flash:
+            <div class="alert alert-${flash['class']}">
+              = flash['message']
+            </div>
+
+          %form.form-horizontal(method="post")
+            .control-group
+              %label.control-label Afficher l'écran de démarrage
+              .controls
+                %label.checkbox.toggle.well#splash_checkbox
+                  - if show_splash:
+                    %input(type="checkbox", checked="checked", name="show_splash")
+                  - else:
+                    %input(type="checkbox", name="show_splash")
+                  %p
+                    %span.on Activer
+                    %span.off Desativer
+                  %a.btn.btn-primary.slide-button
+
+            .control-group
+              %label.control-label playlist aléatoire
+              .controls
+
+                %label.checkbox.toggle.well#shuffle_checkbox
+                  - if shuffle_playlist:
+                    %input(type="checkbox", checked="checked", name="shuffle_playlist")
+                  - else:
+                    %input(type="checkbox", name="shuffle_playlist")
+                  %p
+                    %span.on Activer
+                    %span.off Desactiver
+                  %a.btn.btn-primary.slide-button
+
+            .control-group
+              %label.control-label sortie audio
+              .controls
+                %select.span2(name="audio_output")
+                  - if audio_output == 'hdmi':
+                    %option(value="hdmi", selected="selected") HDMI
+                    %option(value="local") 3.5mm jack
+                  - else:
+                    %option(value="hdmi") HDMI
+                    %option(value="local", selected="selected") 3.5mm jack
+
+            .control-group
+              %label.control-label Durée par defaut
+              .controls
+                %input.span1(type="number", name="default_duration", value=durée par defaut)
+
+            .control-group
+              %label.control-label Utilisez horloge de 24 h
+              .controls
+
+                %label.checkbox.toggle.well#use_24_hour_clock_checkbox
+                  - if use_24_hour_clock:
+                    %input(type="checkbox", checked="checked", name="use_24_hour_clock")
+                  - else:
+                    %input(type="checkbox", name="use_24_hour_clock")
+                  %p
+                    %span.on Activer
+                    %span.off Desactiver
+                  %a.btn.btn-primary.slide-button
+
+            .control-group
+              %label.control-label Debuguer logging
+              .controls
+
+                %label.checkbox.toggle.well#debug_checkbox
+                  - if debug_logging:
+                    %input(type="checkbox", checked="checked", name="debug_logging")
+                  - else:
+                    %input(type="checkbox", name="debug_logging")
+                  %p
+                    %span.on  Activer
+                    %span.off Desactiver
+                  %a.btn.btn-primary.slide-button
+
+            .form-actions
+              %input.btn.btn-primary(type="submit", value="Enregistrer")
+              %a.btn(href="/") Annuler
+
+    #footer
+      .container
+        / .copy
+        /   &copy; <strong>2012-2015.</strong> WireLoad, Inc.
+        / %a(id="wireload-logo", href="http://wireload.net/")
+        /   %img(src="/static/img/wireload-logo.png", alt="WireLoad")

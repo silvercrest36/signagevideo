@@ -1,0 +1,243 @@
+!!! 5
+%html
+
+  %head
+    %meta(charset="utf-8")
+    %title Signage Video
+
+    %link(href="/static/css/bootstrap.css", rel="stylesheet")
+    %link(href="/static/css/datepicker.css", rel="stylesheet")
+    %link(href="/static/css/timepicker.css", rel="stylesheet")
+    %link(href="/static/css/toggle-switch.css", rel="stylesheet")
+    %link(href="/static/css/screenly.css", rel="stylesheet")
+
+    :javascript
+      var default_duration = ${default_duration};
+      var use_24_hour_clock = ${'true' if use_24_hour_clock else 'false'};
+
+    %script(src="/static/js/underscore-1.4.3.min.js")
+
+    %script(src="/static/js/jquery-1.9.1.min.js")
+    %script(src="/static/js/jquery.iframe-transport.js")
+
+    %script(src="/static/js/backbone-0.9.10.min.js") /needs jquery
+
+    %script(src="/static/js/jquery-ui-1.10.1.custom.min.js")
+    %script(src="/static/js/jquery.fileupload.js") /needs jqueryui.widget
+
+    %script(src="/static/js/bootstrap.min.js") /needs jquery
+    %script(src="/static/js/bootstrap-datepicker.js")
+    %script(src="/static/js/bootstrap-timepicker.js")
+
+    %script(src="/static/js/moment.js")
+    %script(src="/static/js/screenly-ose.js")
+    %script(src="/static/js/main.js")
+
+    %script(type="text/template", id="asset-row-template")
+      %td.asset_row_name
+        %img(src="static/img/drag-handle.png")
+        %i.asset-icon
+        :plain
+          <%= name %>
+      %td(style="width:21%")
+        :plain
+          <%= start_date %>
+      %td(style="width:21%")
+        :plain
+          <%= end_date %>
+      %td.asset_row_btns(style="width:13%")
+        %button.edit-asset-button.btn(type="button")
+          %i.icon-pencil
+        %button.delete-asset-button.btn(type="button", dataTitle="Êtes-vous sûr?", dataPlacement="left", dataHtml="true", dataTrigger="manual")
+          %i.icon-trash
+      %td(style="width:7%")
+        %label.is_enabled-toggle.checkbox.toggle.well
+          %input(type="checkbox")
+          %p
+            %span.on Activer
+            %span.off Desactiver
+          %a.slide-button.btn.btn-primary
+
+    %script(type="text/template", id="confirm-delete-template")
+      .clearfix
+        .pull-left
+          %a.confirm-delete.btn.btn-medium.btn-danger(href="#") Supprimer
+        .pull-right
+          %a.cancel-delete.btn.btn-medium(href="#") Annuler
+
+    %script(type="text/template", id="request-error-template")
+      .container
+        .alert.alert-error
+          %button.close(type="button", dataDismiss="alert") &times;
+          %span.msg
+            L'opération a échoué . S'il vous plaît recharger la page et essayez à nouveau.
+
+
+    %script(type="text/template", id="asset-modal-template")
+      .modal.hide.fade(tabindex="-1", role="dialog", ariaLabelledby="myModalLabel", ariaHidden="true")
+        %form.form-horizontal#add-form
+          .modal-header
+            %h3#modalLabel Ajouter une diffusion
+          .modal-body
+            %fieldset
+              .control-group.name
+                %label.control-label Nom
+                .controls
+                  %input.span4(type="text", name="name", placeholder="Nom pour cette diffusion")
+            .asset-location.add
+              %fieldset
+                .tabbable
+                  %ul.nav.nav-tabs
+                    %li.active.tabnav-uri(style="margin-left:180px")
+                      %a(href="#tab-uri", dataToggle="tab") Lien
+                    %li.tabnav-file_upload
+                      %a(href="#tab-file_upload", dataToggle="tab") Charger
+                  .tab-content
+                    #tab-uri.tab-pane.active
+                      .control-group.uri
+                        %label.control-label URL Diffusion
+                        .controls
+                          %input.span4(type="text", name="uri", placeholder="Public URL to this asset's location")
+                    #tab-file_upload.tab-pane
+                      .control-group
+                        %label.control-label Charger la Diffusion
+                        .controls
+                          %div
+                            %button.btn Choisir Fichier
+                            %input(type="file", name="file_upload")
+                          #file_upload_label
+            .asset-location.edit(style="display:none")
+              %fieldset
+                .control-group
+                  %label.control-label Localisation
+                  .controls
+                    .uri-text.span4.first
+
+            %fieldset
+              .control-group.mimetype
+                %label.control-label Type
+                .controls
+                  %select.span2(name="mimetype")
+                    %option(value="image") Image
+                    %option(value="video") Video
+                    %option(value="webpage") PageWeb
+
+            %hr
+            %fieldset
+              .control-group.start_date
+                %label.control-label Date Debut
+                .controls
+                  %input.span2.date(type="text", name="start_date_date")
+                  %input.span2.time(type="text", name="start_date_time")
+                  %input(type="hidden", name="start_date")
+              .control-group.end_date
+                %label.control-label Date Fin
+                .controls
+                  %input.span2.date(type="text", name="end_date_date")
+                  %input.span2.time(type="text", name="end_date_time")
+                  %input(type="hidden", name="end_date")
+              .control-group.duration
+                %label.control-label Durée
+                .controls
+                  %input.span1(type="number", name="duration")
+                  seconds
+                  &nbsp;
+                  %span.muted.zerohint(style="display:none") Utiliser 0 pour detecter automatiquement la longeur de la video
+              .advanced-accordion.accordion
+                .accordion-group
+                  .accrodion-heading
+                    %i.icon-play.unrotated
+                    %a.advanced-toggle(href="#") avancée
+                  .collapse-advanced.accordion-body.collapse
+                    .accordion-inner
+                      .control-group
+                        %label.control-label Desactiver cache
+                        .controls.nocache
+                          %label.nocache-toggle.checkbox.toggle.well
+                            %input(type="checkbox", name="nocache")
+                            %p
+                              %span.on Oui
+                              %span.off Non
+                            %a.slide-button.btn.btn-primary
+
+          .modal-footer
+            .pull-left.progress.progress-striped.active(style="display:none")
+              .bar
+            %input.btn.cancel(type="button", value="Annuler")
+            %input.btn.btn-primary(type="submit", value="Enregister")
+
+
+  %body
+    #request-error.navbar.navbar-fixed-top
+    .navbar.navbar-fixed-top
+      .navbar-inner
+        .container
+          %a.brand(href="#")
+            %strong Systeme
+            %span Signage
+
+          %ul.nav.pull-right
+            / - if not up_to_date:
+            /   %li.update-available
+            /     %a(href="http://www.screenlyapp.com/ose.html#upgrade")
+            /       %i.icon-circle-arrow-down.icon-white
+            /       Update Available
+            / %li
+              %a(href="/settings")
+                %i.icon-cog.icon-white
+                Parametres
+            %li.divider-vertical
+            %li
+              %a(href="/system_info")
+                %i.icon-tasks.icon-white
+                Information Systeme
+
+    .container
+      .row
+        .span12
+          %h1.page-header
+            .pull-right
+              %a#add-asset-button.btn.btn-primary(href="#")
+                %i.icon-plus.icon-white
+                Ajouter une diffusion
+            Horaire Présentation
+
+      #assets.row
+        .span12
+          %section
+            .header
+              Diffusion Active
+            %table.table.table-striped.active-table
+              %thead(style="display:none")
+                %tr
+                  %th.asset_row_name Name
+                  %th(style="width:21%") Start
+                  %th(style="width:21%") End
+                  %th(style="width:13%")
+                  %th(style="width:7%")
+              %tbody#active-assets
+        .span12
+          %section
+            .header
+              Inactive assets
+            %table.table.table-striped.inactive-table
+              %thead(style="display:none")
+                %tr
+                  %th.asset_row_name Nom
+                  %th(style="width:21%") Debut
+                  %th(style="width:21%") Fin
+                  %th(style="width:13%")
+                  %th(style="width:7%")
+              %tbody#inactive-assets
+
+      / %hr
+      / %span Want to get more out of Screenly?
+      / %a.brand(href="http://www.screenlyapp.com/?utm_source=Screenly-OSE&utm_medium=root-page&utm_campaign=OSE")
+      /   %strong Try Screenly Pro.
+
+    #footer
+      .container
+        / .copy
+        /   &copy; <strong>2012-2015.</strong> WireLoad, Inc.
+        / %a(id="wireload-logo", href="http://wireload.net/")
+        /   %img(src="/static/img/wireload-logo.png", alt="WireLoad")
